@@ -8,7 +8,7 @@ import getHashForLastSuccessfulJob from './getHashForLastSuccessfulJob';
  */
 async function run(): Promise<void> {
   try {
-    const token = core.getInput('github_token');
+    const token = core.getInput('github_token') ?? process.env.GITHUB_TOKEN;
     const api = github.getOctokit(token);
 
     const owner = core.getInput('owner') ?? github.context.repo.owner;
