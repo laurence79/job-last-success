@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/laurence79/last-successful-commit/compare/v1.1.0...v1.1.1) (2024-04-19)
+
+
+### Bug Fixes
+
+* Token is required after all ([1d72724](https://github.com/laurence79/last-successful-commit/commit/1d727242f67dc57cfd3528de79f56b5223c6495f))
+
 # [1.1.0](https://github.com/laurence79/last-successful-commit/compare/v1.0.7...v1.1.0) (2024-04-19)
 
 

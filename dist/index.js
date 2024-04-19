@@ -30288,7 +30288,7 @@ const inferParameters_1 = __importDefault(__nccwpck_require__(8024));
  */
 async function run() {
     try {
-        const token = process.env.GITHUB_TOKEN || core.getInput('github_token');
+        const token = core.getInput('github_token');
         if (!token) {
             core.setFailed('github_token is required');
             return;
