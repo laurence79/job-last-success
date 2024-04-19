@@ -23,7 +23,7 @@ inputs:
     required: false
   github_token:
     description: 'The token to use with the GitHub API'
-    required: false
+    required: true
 
 # Define your outputs here.
 outputs:
