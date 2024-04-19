@@ -1,6 +1,6 @@
-name: 'The name of your action here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Get hash of last successful job'
+description: 'Finds the commit hash of the most recent successful conclusion of a job'
+author: 'laurence79'
 
 # Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
@@ -9,15 +9,27 @@ branding:
 
 # Define your inputs here.
 inputs:
-  milliseconds:
-    description: 'Your input description here'
-    required: true
-    default: '1000'
+  job:
+    description: 'The id of the job'
+    required: false
+    default: The current job
+  owner:
+    description: 'The owner of the repo'
+    required: false
+    default: The current owner
+  repo:
+    description: 'The repo'
+    required: false
+    default: The current repo
+  workflow:
+    description: 'The filename of the workflow'
+    required: false
+    default: The current workflow
 
 # Define your outputs here.
 outputs:
-  time:
-    description: 'Your output description here'
+  commit_hash:
+    description: 'The commit hash, if a successful job was found'
 
 runs:
   using: node20

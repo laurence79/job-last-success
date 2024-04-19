@@ -1,26 +1,34 @@
-import * as core from '@actions/core'
-import { wait } from './wait'
+import * as core from '@actions/core';
+import * as github from '@actions/github';
+import getHashForLastSuccessfulJob from './getHashForLastSuccessfulJob';
 
 /**
  * The main function for the action.
  * @returns {Promise<void>} Resolves when the action is complete.
  */
-export async function run(): Promise<void> {
+async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
+    const token = core.getInput('github_token');
+    const api = github.getOctokit(token);
 
-    // Debug logs are only output if the `ACTIONS_STEP_DEBUG` secret is true
-    core.debug(`Waiting ${ms} milliseconds ...`)
+    const owner = core.getInput('owner') ?? github.context.repo.owner;
+    const repo = core.getInput('repo') ?? github.context.repo.repo;
+    const workflowId = core.getInput('workflow') ?? github.context.workflow;
+    const jobName = core.getInput('job') ?? github.context.job;
 
-    // Log the current timestamp, wait, then log the new timestamp
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    const sha = await getHashForLastSuccessfulJob(
+      api,
+      owner,
+      repo,
+      workflowId,
+      jobName
+    );
 
-    // Set outputs for other workflow steps to use
-    core.setOutput('time', new Date().toTimeString())
+    core.setOutput('commit_hash', sha);
   } catch (error) {
     // Fail the workflow run if an error occurs
-    if (error instanceof Error) core.setFailed(error.message)
+    if (error instanceof Error) core.setFailed(error.message);
   }
 }
+
+export default run;
