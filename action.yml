@@ -19,16 +19,18 @@ inputs:
     description: 'The repo (defaults to current)'
     required: false
   workflow:
-    description: 'The filename of the workflow (defaults to current)'
+    description: 'The filename of the workflow, or the workflow id (defaults to current)'
     required: false
   github_token:
-    description: 'The token to use with the GitHub API. Use secrets.GITHUB_TOKEN'
-    required: true
+    description: 'The token to use with the GitHub API'
+    required: false
 
 # Define your outputs here.
 outputs:
-  commit_hash:
-    description: 'The commit hash, if a successful job was found'
+  commit_sha:
+    description: 'The commit SHA of the run'
+  run_id:
+    description: 'The run ID containing the successful job'
 
 runs:
   using: node20

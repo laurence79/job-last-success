@@ -1,25 +1,27 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
+import { ApiType } from './ApiType';
 
-const INPUT_KEYS = [
-  'github_token',
-  'owner',
-  'repo',
-  'workflow',
-  'job'
-] as const;
+const INPUT_KEYS = ['owner', 'repo', 'workflow', 'job'] as const;
 
 type TupleToUnion<T extends readonly [...unknown[]]> = T[number];
 
 type Parameters = Record<TupleToUnion<typeof INPUT_KEYS>, string>;
 
-function inferParameters(): Parameters | null {
+async function inferParameters(api: ApiType): Promise<Parameters | null> {
+  const run = await api.request(
+    'GET /repos/{owner}/{repo}/actions/runs/{run_id}',
+    {
+      ...github.context.repo,
+      run_id: github.context.runId
+    }
+  );
+
   const defaults: Partial<Parameters> = {
-    github_token: process.env.GITHUB_TOKEN || undefined,
     owner: github.context.repo.owner || undefined,
     repo: github.context.repo.repo || undefined,
-    workflow: github.context.workflow || undefined,
-    job: github.context.job || undefined
+    job: github.context.job || undefined,
+    workflow: String(run.data.workflow_id)
   };
 
   const inputs: Partial<Parameters> = Object.fromEntries(

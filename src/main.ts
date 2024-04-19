@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import getHashForLastSuccessfulJob from './getHashForLastSuccessfulJob';
+import getLastSuccessfulJob from './getLastSuccessfulJob';
 import inferParameters from './inferParameters';
 
 /**
@@ -9,23 +9,25 @@ import inferParameters from './inferParameters';
  */
 async function run(): Promise<void> {
   try {
-    const params = inferParameters();
+    const token = process.env.GITHUB_TOKEN || core.getInput('github_token');
 
-    if (!params) return;
-
-    const { github_token: token, owner, repo, workflow, job } = params;
+    if (!token) {
+      core.setFailed('github_token is required');
+      return;
+    }
 
     const api = github.getOctokit(token);
 
-    const sha = await getHashForLastSuccessfulJob(
-      api,
-      owner,
-      repo,
-      workflow,
-      job
-    );
+    const params = await inferParameters(api);
 
-    core.setOutput('commit_hash', sha);
+    if (!params) return;
+
+    const { owner, repo, workflow, job } = params;
+
+    const jobData = await getLastSuccessfulJob(api, owner, repo, workflow, job);
+
+    core.setOutput('commit_sha', jobData?.head_sha);
+    core.setOutput('run_id', jobData?.run_id);
   } catch (error) {
     // Fail the workflow run if an error occurs
     if (error instanceof Error) core.setFailed(error.message);
