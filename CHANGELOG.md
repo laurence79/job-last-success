@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/laurence79/job-last-success/compare/v1.3.0...v1.4.0) (2024-04-19)
+
+
+### Features
+
+* Better name ([118314b](https://github.com/laurence79/job-last-success/commit/118314b7db6141a750fd09169472b6db1eb2c266))
+
 # [1.3.0](https://github.com/laurence79/job-last-success/compare/v1.2.0...v1.3.0) (2024-04-19)
 
 
