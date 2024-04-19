@@ -1,6 +1,4 @@
-/**
- * The entrypoint for the action.
- */
+import 'ts-array-extensions';
 import run from './main';
 
 void run();

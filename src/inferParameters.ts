@@ -23,7 +23,13 @@ function inferParameters(): Parameters | null {
   };
 
   const inputs: Partial<Parameters> = Object.fromEntries(
-    INPUT_KEYS.map(n => [n, core.getInput(n) || undefined])
+    INPUT_KEYS.compactMap(n => {
+      const input = core.getInput(n);
+
+      if (!input) return undefined;
+
+      return [n, core.getInput(n) || undefined];
+    })
   );
 
   const final: Partial<Parameters> = {
