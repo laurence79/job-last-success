@@ -30027,32 +30027,6 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
-/***/ 8234:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const getJobs_1 = __importDefault(__nccwpck_require__(7400));
-const getRuns_1 = __importDefault(__nccwpck_require__(8132));
-async function getHashForLastSuccessfulJob(api, owner, repo, workflowId, jobName) {
-    for await (const run of (0, getRuns_1.default)(api, owner, repo, workflowId)) {
-        for await (const job of (0, getJobs_1.default)(api, owner, repo, run.id)) {
-            if (job.name === jobName && job.conclusion === 'success') {
-                return run.head_commit?.id;
-            }
-        }
-    }
-    return undefined;
-}
-exports["default"] = getHashForLastSuccessfulJob;
-
-
-/***/ }),
-
 /***/ 7400:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -30102,6 +30076,32 @@ async function* getJobs(api, owner, repo, runId, page = 1) {
     }
 }
 exports["default"] = getJobs;
+
+
+/***/ }),
+
+/***/ 9693:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const getJobs_1 = __importDefault(__nccwpck_require__(7400));
+const getRuns_1 = __importDefault(__nccwpck_require__(8132));
+async function getLastSuccessfulJob(api, owner, repo, workflowId, jobName) {
+    for await (const run of (0, getRuns_1.default)(api, owner, repo, workflowId)) {
+        for await (const job of (0, getJobs_1.default)(api, owner, repo, run.id)) {
+            if (job.name === jobName && job.conclusion === 'success') {
+                return job;
+            }
+        }
+    }
+    return undefined;
+}
+exports["default"] = getLastSuccessfulJob;
 
 
 /***/ }),
@@ -30206,20 +30206,17 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
-const INPUT_KEYS = [
-    'github_token',
-    'owner',
-    'repo',
-    'workflow',
-    'job'
-];
-function inferParameters() {
+const INPUT_KEYS = ['owner', 'repo', 'workflow', 'job'];
+async function inferParameters(api) {
+    const run = await api.request('GET /repos/{owner}/{repo}/actions/runs/{run_id}', {
+        ...github.context.repo,
+        run_id: github.context.runId
+    });
     const defaults = {
-        github_token: process.env.GITHUB_TOKEN || undefined,
         owner: github.context.repo.owner || undefined,
         repo: github.context.repo.repo || undefined,
-        workflow: github.context.workflow || undefined,
-        job: github.context.job || undefined
+        job: github.context.job || undefined,
+        workflow: String(run.data.workflow_id)
     };
     const inputs = Object.fromEntries(INPUT_KEYS.compactMap(n => {
         const input = core.getInput(n);
@@ -30283,7 +30280,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
-const getHashForLastSuccessfulJob_1 = __importDefault(__nccwpck_require__(8234));
+const getLastSuccessfulJob_1 = __importDefault(__nccwpck_require__(9693));
 const inferParameters_1 = __importDefault(__nccwpck_require__(8024));
 /**
  * The main function for the action.
@@ -30291,13 +30288,19 @@ const inferParameters_1 = __importDefault(__nccwpck_require__(8024));
  */
 async function run() {
     try {
-        const params = (0, inferParameters_1.default)();
+        const token = process.env.GITHUB_TOKEN || core.getInput('github_token');
+        if (!token) {
+            core.setFailed('github_token is required');
+            return;
+        }
+        const api = github.getOctokit(token);
+        const params = await (0, inferParameters_1.default)(api);
         if (!params)
             return;
-        const { github_token: token, owner, repo, workflow, job } = params;
-        const api = github.getOctokit(token);
-        const sha = await (0, getHashForLastSuccessfulJob_1.default)(api, owner, repo, workflow, job);
-        core.setOutput('commit_hash', sha);
+        const { owner, repo, workflow, job } = params;
+        const jobData = await (0, getLastSuccessfulJob_1.default)(api, owner, repo, workflow, job);
+        core.setOutput('commit_sha', jobData?.head_sha);
+        core.setOutput('run_id', jobData?.run_id);
     }
     catch (error) {
         // Fail the workflow run if an error occurs

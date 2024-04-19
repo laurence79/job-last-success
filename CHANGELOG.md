@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/laurence79/last-successful-commit/compare/v1.0.7...v1.1.0) (2024-04-19)
+
+
+### Features
+
+* Infer the workflow id. Return the run id ([a412a82](https://github.com/laurence79/last-successful-commit/commit/a412a82740130f537d2cc92518d853e4c2a9d40e))
+
 ## [1.0.7](https://github.com/laurence79/last-successful-commit/compare/v1.0.6...v1.0.7) (2024-04-19)
 
 
