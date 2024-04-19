@@ -29244,19 +29244,21 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
-const JOBS_PAGE_SIZE = 50;
+const PAGE_SIZE = 50;
 async function* getJobs(api, owner, repo, runId, page = 1) {
-    core.debug(`Loading jobs ${(page - 1) * JOBS_PAGE_SIZE} to ${page * JOBS_PAGE_SIZE} for workflow run ${runId} in ${owner}/${repo} `);
+    const from = (page - 1) * PAGE_SIZE + 1;
+    const to = page * PAGE_SIZE;
+    core.debug(`Loading jobs ${from} to ${to} for workflow run ${runId} in ${owner}/${repo} `);
     const result = await api.request('GET /repos/{owner}/{repo}/actions/runs/{run_id}/jobs', {
         owner,
         repo,
         run_id: runId,
-        per_page: JOBS_PAGE_SIZE
+        per_page: PAGE_SIZE
     });
     for (const element of result.data.jobs) {
         yield element;
     }
-    if (result.data.jobs.length === JOBS_PAGE_SIZE) {
+    if (result.data.jobs.length === PAGE_SIZE) {
         return getJobs(api, owner, repo, runId, page + 1);
     }
 }
@@ -29295,19 +29297,21 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
-const RUNS_PAGE_SIZE = 10;
+const PAGE_SIZE = 10;
 async function* getRuns(api, owner, repo, workflowId, page = 1) {
-    core.debug(`Loading workflow runs ${(page - 1) * RUNS_PAGE_SIZE} to ${page * RUNS_PAGE_SIZE} for ${workflowId} workflow in ${owner}/${repo}`);
+    const from = (page - 1) * PAGE_SIZE + 1;
+    const to = page * PAGE_SIZE;
+    core.debug(`Loading workflow runs ${from} to ${to} for ${workflowId} workflow in ${owner}/${repo}`);
     const result = await api.request('GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs', {
         owner,
         repo,
         workflow_id: workflowId,
-        per_page: RUNS_PAGE_SIZE
+        per_page: PAGE_SIZE
     });
     for (const element of result.data.workflow_runs) {
         yield element;
     }
-    if (result.data.workflow_runs.length === RUNS_PAGE_SIZE) {
+    if (result.data.workflow_runs.length === PAGE_SIZE) {
         return getRuns(api, owner, repo, workflowId, page + 1);
     }
 }
@@ -29330,6 +29334,75 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
  */
 const main_1 = __importDefault(__nccwpck_require__(399));
 void (0, main_1.default)();
+
+
+/***/ }),
+
+/***/ 8024:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const core = __importStar(__nccwpck_require__(2186));
+const github = __importStar(__nccwpck_require__(5438));
+const INPUT_KEYS = [
+    'github_token',
+    'owner',
+    'repo',
+    'workflow',
+    'job'
+];
+function inferParameters() {
+    const defaults = {
+        github_token: process.env.GITHUB_TOKEN || undefined,
+        owner: github.context.repo.owner || undefined,
+        repo: github.context.repo.repo || undefined,
+        workflow: github.context.workflow || undefined,
+        job: github.context.job || undefined
+    };
+    const inputs = Object.fromEntries(INPUT_KEYS.map(n => [n, core.getInput(n) || undefined]));
+    const final = {
+        ...defaults,
+        ...inputs
+    };
+    core.debug(`[parameters] Combining defaults ${JSON.stringify(defaults, null, 2)} with inputs ${JSON.stringify(inputs, null, 2)} to make ${JSON.stringify(final, null, 2)}`);
+    let failed = false;
+    for (const [key, value] of Object.entries(final)) {
+        if (!value) {
+            core.setFailed(`${key} is required`);
+            failed = true;
+        }
+    }
+    if (failed) {
+        return null;
+    }
+    return final;
+}
+exports["default"] = inferParameters;
 
 
 /***/ }),
@@ -29369,19 +29442,19 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 const getHashForLastSuccessfulJob_1 = __importDefault(__nccwpck_require__(8234));
+const inferParameters_1 = __importDefault(__nccwpck_require__(8024));
 /**
  * The main function for the action.
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 async function run() {
     try {
-        const token = core.getInput('github_token');
+        const params = (0, inferParameters_1.default)();
+        if (!params)
+            return;
+        const { github_token: token, owner, repo, workflow, job } = params;
         const api = github.getOctokit(token);
-        const owner = core.getInput('owner') ?? github.context.repo.owner;
-        const repo = core.getInput('repo') ?? github.context.repo.repo;
-        const workflowId = core.getInput('workflow') ?? github.context.workflow;
-        const jobName = core.getInput('job') ?? github.context.job;
-        const sha = await (0, getHashForLastSuccessfulJob_1.default)(api, owner, repo, workflowId, jobName);
+        const sha = await (0, getHashForLastSuccessfulJob_1.default)(api, owner, repo, workflow, job);
         core.setOutput('commit_hash', sha);
     }
     catch (error) {
