@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/laurence79/last-successful-commit/compare/v1.2.0...v1.3.0) (2024-04-19)
+
+
+### Features
+
+* Important caveat ([9b8f40c](https://github.com/laurence79/last-successful-commit/commit/9b8f40c9e2b773a9321bd344ce37b9bd4b91458a))
+
 # [1.2.0](https://github.com/laurence79/last-successful-commit/compare/v1.1.1...v1.2.0) (2024-04-19)
 
 
