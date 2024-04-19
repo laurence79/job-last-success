@@ -30069,6 +30069,8 @@ async function* getJobs(api, owner, repo, runId, page = 1) {
         per_page: PAGE_SIZE
     });
     for (const element of result.data.jobs) {
+        core.info(`Job ${element.name} (${element.conclusion})`);
+        core.debug(JSON.stringify(element, null, 2));
         yield element;
     }
     if (result.data.jobs.length === PAGE_SIZE) {
@@ -30140,7 +30142,7 @@ const PAGE_SIZE = 10;
 async function* getRuns(api, owner, repo, workflowId, page = 1) {
     const from = (page - 1) * PAGE_SIZE + 1;
     const to = page * PAGE_SIZE;
-    core.debug(`Loading workflow runs ${from} to ${to} for ${workflowId} workflow in ${owner}/${repo}`);
+    core.info(`Loading workflow runs ${from} to ${to} for ${workflowId} workflow in ${owner}/${repo}`);
     const result = await api.request('GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs', {
         owner,
         repo,
@@ -30148,6 +30150,8 @@ async function* getRuns(api, owner, repo, workflowId, page = 1) {
         per_page: PAGE_SIZE
     });
     for (const element of result.data.workflow_runs) {
+        core.info(`Run ${element.id} (${element.updated_at})`);
+        core.debug(JSON.stringify(element, null, 2));
         yield element;
     }
     if (result.data.workflow_runs.length === PAGE_SIZE) {

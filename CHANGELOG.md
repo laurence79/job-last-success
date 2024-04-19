@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/laurence79/last-successful-commit/compare/v1.1.1...v1.2.0) (2024-04-19)
+
+
+### Features
+
+* Improve logging ([98aa23a](https://github.com/laurence79/last-successful-commit/commit/98aa23a928d8c0897828ac5010851806d8a2eb63))
+
 ## [1.1.1](https://github.com/laurence79/last-successful-commit/compare/v1.1.0...v1.1.1) (2024-04-19)
 
 
