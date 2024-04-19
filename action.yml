@@ -10,21 +10,20 @@ branding:
 # Define your inputs here.
 inputs:
   job:
-    description: 'The id of the job'
+    description: 'The id of the job (defaults to current)'
     required: false
-    default: The current job
   owner:
-    description: 'The owner of the repo'
+    description: 'The owner of the repo (defaults to current)'
     required: false
-    default: The current owner
   repo:
-    description: 'The repo'
+    description: 'The repo (defaults to current)'
     required: false
-    default: The current repo
   workflow:
-    description: 'The filename of the workflow'
+    description: 'The filename of the workflow (defaults to current)'
     required: false
-    default: The current workflow
+  github_token:
+    description: 'The token to use with the GitHub API (defaults to GITHUB_TOKEN)'
+    required: false
 
 # Define your outputs here.
 outputs:
