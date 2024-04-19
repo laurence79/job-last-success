@@ -28,6 +28,8 @@ async function* getJobs(
   );
 
   for (const element of result.data.jobs) {
+    core.info(`Job ${element.name} (${element.conclusion})`);
+    core.debug(JSON.stringify(element, null, 2));
     yield element;
   }
 

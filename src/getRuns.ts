@@ -13,7 +13,7 @@ async function* getRuns(
   const from = (page - 1) * PAGE_SIZE + 1;
   const to = page * PAGE_SIZE;
 
-  core.debug(
+  core.info(
     `Loading workflow runs ${from} to ${to} for ${workflowId} workflow in ${owner}/${repo}`
   );
 
@@ -28,6 +28,8 @@ async function* getRuns(
   );
 
   for (const element of result.data.workflow_runs) {
+    core.info(`Run ${element.id} (${element.updated_at})`);
+    core.debug(JSON.stringify(element, null, 2));
     yield element;
   }
 
