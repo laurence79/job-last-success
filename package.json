@@ -1,7 +1,7 @@
 {
   "name": "last-successful-commit",
   "description": "Finds the commit hash of the most recent successful conclusion of a jobe",
-  "version": "0.0.0",
+  "version": "1.0.7",
   "author": "@laurence79",
   "private": true,
   "homepage": "https://github.com/laurence79/last-successful-commit",
