@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import { ApiType } from './ApiType';
 
-const JOBS_PAGE_SIZE = 50;
+const PAGE_SIZE = 50;
 
 async function* getJobs(
   api: ApiType,
@@ -10,10 +10,11 @@ async function* getJobs(
   runId: number,
   page = 1
 ) {
+  const from = (page - 1) * PAGE_SIZE + 1;
+  const to = page * PAGE_SIZE;
+
   core.debug(
-    `Loading jobs ${(page - 1) * JOBS_PAGE_SIZE} to ${
-      page * JOBS_PAGE_SIZE
-    } for workflow run ${runId} in ${owner}/${repo} `
+    `Loading jobs ${from} to ${to} for workflow run ${runId} in ${owner}/${repo} `
   );
 
   const result = await api.request(
@@ -22,7 +23,7 @@ async function* getJobs(
       owner,
       repo,
       run_id: runId,
-      per_page: JOBS_PAGE_SIZE
+      per_page: PAGE_SIZE
     }
   );
 
@@ -30,7 +31,7 @@ async function* getJobs(
     yield element;
   }
 
-  if (result.data.jobs.length === JOBS_PAGE_SIZE) {
+  if (result.data.jobs.length === PAGE_SIZE) {
     return getJobs(api, owner, repo, runId, page + 1);
   }
 }

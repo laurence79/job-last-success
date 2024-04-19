@@ -1,7 +1,7 @@
 import * as core from '@actions/core';
 import { ApiType } from './ApiType';
 
-const RUNS_PAGE_SIZE = 10;
+const PAGE_SIZE = 10;
 
 async function* getRuns(
   api: ApiType,
@@ -10,10 +10,11 @@ async function* getRuns(
   workflowId: string,
   page = 1
 ) {
+  const from = (page - 1) * PAGE_SIZE + 1;
+  const to = page * PAGE_SIZE;
+
   core.debug(
-    `Loading workflow runs ${(page - 1) * RUNS_PAGE_SIZE} to ${
-      page * RUNS_PAGE_SIZE
-    } for ${workflowId} workflow in ${owner}/${repo}`
+    `Loading workflow runs ${from} to ${to} for ${workflowId} workflow in ${owner}/${repo}`
   );
 
   const result = await api.request(
@@ -22,7 +23,7 @@ async function* getRuns(
       owner,
       repo,
       workflow_id: workflowId,
-      per_page: RUNS_PAGE_SIZE
+      per_page: PAGE_SIZE
     }
   );
 
@@ -30,7 +31,7 @@ async function* getRuns(
     yield element;
   }
 
-  if (result.data.workflow_runs.length === RUNS_PAGE_SIZE) {
+  if (result.data.workflow_runs.length === PAGE_SIZE) {
     return getRuns(api, owner, repo, workflowId, page + 1);
   }
 }

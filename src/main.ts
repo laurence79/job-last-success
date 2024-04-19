@@ -1,6 +1,7 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import getHashForLastSuccessfulJob from './getHashForLastSuccessfulJob';
+import inferParameters from './inferParameters';
 
 /**
  * The main function for the action.
@@ -8,20 +9,20 @@ import getHashForLastSuccessfulJob from './getHashForLastSuccessfulJob';
  */
 async function run(): Promise<void> {
   try {
-    const token = core.getInput('github_token');
-    const api = github.getOctokit(token);
+    const params = inferParameters();
 
-    const owner = core.getInput('owner') || github.context.repo.owner;
-    const repo = core.getInput('repo') || github.context.repo.repo;
-    const workflowId = core.getInput('workflow') || github.context.workflow;
-    const jobName = core.getInput('job') || github.context.job;
+    if (!params) return;
+
+    const { github_token: token, owner, repo, workflow, job } = params;
+
+    const api = github.getOctokit(token);
 
     const sha = await getHashForLastSuccessfulJob(
       api,
       owner,
       repo,
-      workflowId,
-      jobName
+      workflow,
+      job
     );
 
     core.setOutput('commit_hash', sha);
