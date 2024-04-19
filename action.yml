@@ -22,8 +22,8 @@ inputs:
     description: 'The filename of the workflow (defaults to current)'
     required: false
   github_token:
-    description: 'The token to use with the GitHub API (defaults to GITHUB_TOKEN)'
-    required: false
+    description: 'The token to use with the GitHub API. Use ${{ secrets.GITHUB_TOKEN }}'
+    required: true
 
 # Define your outputs here.
 outputs:
