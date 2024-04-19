@@ -1,6 +1,6 @@
-# last-successful-commit
+# job-last-success
 
-Finds the commit hash of the most recent successful conclusion of a job.
+Finds the commit SHA and run_id of the most recent successful conclusion of a job.
 
 ```yaml
 jobs:
@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check last
-        uses: laurence79/last-successful-commit@v1.2.0
+        uses: laurence79/job-last-success@v1.4.0
         with:
           github_token: ${{ github.token }}
 ```
