@@ -11,10 +11,10 @@ async function run(): Promise<void> {
     const token = core.getInput('github_token');
     const api = github.getOctokit(token);
 
-    const owner = core.getInput('owner') ?? github.context.repo.owner;
-    const repo = core.getInput('repo') ?? github.context.repo.repo;
-    const workflowId = core.getInput('workflow') ?? github.context.workflow;
-    const jobName = core.getInput('job') ?? github.context.job;
+    const owner = core.getInput('owner') || github.context.repo.owner;
+    const repo = core.getInput('repo') || github.context.repo.repo;
+    const workflowId = core.getInput('workflow') || github.context.workflow;
+    const jobName = core.getInput('job') || github.context.job;
 
     const sha = await getHashForLastSuccessfulJob(
       api,
